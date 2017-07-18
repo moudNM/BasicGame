@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class Board extends JPanel implements Runnable{
@@ -25,8 +27,8 @@ public class Board extends JPanel implements Runnable{
 	    setFocusable(true);
 	    setBackground(Color.BLACK);
 	    setDoubleBuffered(true);
-	    
-	    p = new player();
+	
+	    p = new player(0,0);
 
 	    
 	
@@ -50,14 +52,46 @@ public class Board extends JPanel implements Runnable{
 	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 	            RenderingHints.VALUE_ANTIALIAS_ON);
 	        System.out.println("paint");
-		g2d.drawImage(p.getImage(),p.getX(),p.getY(),null);
+		g2d.drawImage(p.getImg(),p.getX(),p.getY(),null);
+		
+		ArrayList al = p.getBullets();
+		
+		for(Object b1: al){
+		    
+		    bullet b = (bullet) b1;
+		    
+		    g2d.drawImage(b.getImg(),b.getX(),b.getY(),null);
+		}
+		
+		
+		
 	        Toolkit.getDefaultToolkit().sync();
 	    
 	    
 	}
 	
-	
+	public void updateBullets(){
+	    ArrayList al = p.getBullets();
+	    
+	    
+	    for (int i = 0; i < al.size(); i++) {
 
+	            bullet b = (bullet) al.get(i);
+
+	            if (b.isVisible()) {
+
+	        	((bullet) p.getBullets().get(i)).move();
+	            } else {
+
+	                p.getBullets().remove(i);
+	            }
+	        }
+	}
+
+	public void updatePlayer(){
+	    p.move();
+	}
+	
 	
 	@Override
 	public void run() {
@@ -68,7 +102,8 @@ public class Board extends JPanel implements Runnable{
 	    
 	    while(true){
 		
-		p.move();
+		updatePlayer();
+		updateBullets();
 		repaint();
 		
 		diff = System.currentTimeMillis() - bef;
